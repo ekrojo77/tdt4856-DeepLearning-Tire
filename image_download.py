@@ -60,17 +60,29 @@ if __name__ == "__main__":
     with zipfile.ZipFile(DOWNLOAD_LOCATION_ZIP, "r") as zip_ref:
         zip_ref.extractall(DOWNLOAD_PATH)
 
+    os.mkdir(DOWNLOAD_PATH + f"Training_set/")
+    os.mkdir(DOWNLOAD_PATH + f"Validation_set/")
     for Dir in ["Med", "Uten"]:
-        output_path = DOWNLOAD_PATH + f"{Dir}_All/"
+        output_path = DOWNLOAD_PATH + f"Training_set/{Dir}/"
         os.mkdir(output_path)
         counter = 0
-        for filename in glob.glob(f"./images-tmp/{Dir}/*.jpg"):
+        img_counter = 0
+        a = 0
+
+        # define the name of the directory to be created
+        TestSetPath = DOWNLOAD_PATH + f"Validation_set/{Dir}/"
+        os.mkdir(TestSetPath)
+
+        for filename in glob.glob(f"./images-tmp/{Dir}/*.jpg") + glob.glob(
+            f"./images-tmp/{Dir}/*.JPG"
+        ):
             image = Image.open(filename)
             new_image = image.resize((224, 224))
             flipped_image = ImageOps.flip(new_image)
             mirrored_image = ImageOps.mirror(new_image)
-            print(f"\rCreating images in {output_path}: {counter}", end="")
             counter += 1
+            print(f"\rCreating images in {output_path}: {counter}", end="")
+
             for i in [new_image, flipped_image, mirrored_image]:
                 # Save original image
                 i.save(
@@ -87,8 +99,17 @@ if __name__ == "__main__":
                         random.uniform(0.2, 0.9)
                     )
                     for new_img in [rotated_image, brightness_image, contrast_image]:
-                        # Save the modified images
-                        new_img.save(
-                            output_path + str(random.random()) + ".jpg", format="jpeg",
-                        )
+                        # Path of directory of images.
+                        img_counter += 1
+                        if img_counter % 10 == 0:
+                            new_img.save(
+                                TestSetPath + str(random.random()) + ".jpg",
+                                format="jpeg",
+                            )
+                        else:
+                            # Save the modified images
+                            new_img.save(
+                                output_path + str(random.random()) + ".jpg",
+                                format="jpeg",
+                            )
         print()

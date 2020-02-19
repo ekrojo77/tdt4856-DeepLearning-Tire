@@ -2,6 +2,17 @@ import urllib.request
 import os
 import zipfile
 
+import random
+
+import glob
+import os
+import shutil
+
+
+from PIL import Image
+from PIL import ImageEnhance
+from PIL import ImageOps
+
 from tqdm import tqdm
 
 IMAGE_FILE = "http://folk.ntnu.no/odinu/images-latest.zip"
@@ -36,16 +47,8 @@ def download_url(url, output_path):
 
 
 if __name__ == "__main__":
-    try:
-        # Delete old files
-        os.rmdir(DOWNLOAD_PATH)
-    except Exception:
-        pass
-    try:
-        # Create directory
-        os.mkdir(DOWNLOAD_PATH)
-    except Exception:
-        pass
+    shutil.rmtree(DOWNLOAD_PATH)
+    os.mkdir(DOWNLOAD_PATH)
 
     # Download zip with images
     download_url(IMAGE_FILE, DOWNLOAD_LOCATION_ZIP)
@@ -53,3 +56,36 @@ if __name__ == "__main__":
     # Extract zip
     with zipfile.ZipFile(DOWNLOAD_LOCATION_ZIP, "r") as zip_ref:
         zip_ref.extractall(DOWNLOAD_PATH)
+
+    for Dir in ["Med", "Uten"]:
+        output_path = DOWNLOAD_PATH + f"{Dir}_All/"
+        os.mkdir(output_path)
+        counter = 0
+        for filename in glob.glob(f"./images-tmp/{Dir}/*.jpg"):
+            image = Image.open(filename)
+            new_image = image.resize((224, 224))
+            flipped_image = ImageOps.flip(new_image)
+            mirrored_image = ImageOps.mirror(new_image)
+            print(f"\rCreating images in {output_path}: {counter}", end="")
+            counter += 1
+            for i in [new_image, flipped_image, mirrored_image]:
+                # Save original image
+                i.save(
+                    output_path + str(random.random()) + ".jpg", format="jpeg",
+                )
+                for y in range(3):
+                    # endre dette for større random sample size
+                    rotated_image = i.rotate(random.randint(1, 359), expand=True)
+                    brightness_image = ImageEnhance.Brightness(rotated_image).enhance(
+                        random.uniform(0.2, 0.9)
+                    )
+                    # endrer Brightness, tror ikke mørkere en 0.2 som startverdi er lurt
+                    contrast_image = ImageEnhance.Contrast(rotated_image).enhance(
+                        random.uniform(0.2, 0.9)
+                    )
+                    for new_img in [rotated_image, brightness_image, contrast_image]:
+                        # Save the modified images
+                        new_img.save(
+                            output_path + str(random.random()) + ".jpg", format="jpeg",
+                        )
+        print()

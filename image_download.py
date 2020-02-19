@@ -47,7 +47,10 @@ def download_url(url, output_path):
 
 
 if __name__ == "__main__":
-    shutil.rmtree(DOWNLOAD_PATH)
+    try:
+        shutil.rmtree(DOWNLOAD_PATH)
+    except Exception:
+        pass
     os.mkdir(DOWNLOAD_PATH)
 
     # Download zip with images

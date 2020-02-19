@@ -130,3 +130,9 @@ dmypy.json
 
 #Git
 .git
+
+
+# Custom
+
+# Downloaded images
+images-tmp

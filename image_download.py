@@ -73,8 +73,7 @@ if __name__ == "__main__":
         TestSetPath = DOWNLOAD_PATH + f"Validation_set/{Dir}/"
         os.mkdir(TestSetPath)
 
-        for filename in glob.glob(f"./images-tmp/{Dir}/*.jpg") + glob.glob(
-            f"./images-tmp/{Dir}/*.JPG"
+        for filename in glob.glob(f"./images-tmp/{Dir}/*.jpg"
         ):
             image = Image.open(filename)
             new_image = image.resize((224, 224))
@@ -88,13 +87,13 @@ if __name__ == "__main__":
                 i.save(
                     output_path + str(random.random()) + ".jpg", format="jpeg",
                 )
-                for y in range(3):
-                    # endre dette for større random sample size
+                for y in range(1):
+                    # endre dette for større/mindre random sample size
                     rotated_image = i.rotate(random.randint(1, 359), expand=True)
+                    # endrer Brightness, tror ikke mørkere en 0.2 som startverdi er lurt
                     brightness_image = ImageEnhance.Brightness(rotated_image).enhance(
                         random.uniform(0.2, 0.9)
                     )
-                    # endrer Brightness, tror ikke mørkere en 0.2 som startverdi er lurt
                     contrast_image = ImageEnhance.Contrast(rotated_image).enhance(
                         random.uniform(0.2, 0.9)
                     )

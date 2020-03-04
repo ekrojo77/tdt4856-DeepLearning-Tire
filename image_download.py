@@ -77,19 +77,20 @@ if __name__ == "__main__":
         ):
             image = Image.open(filename)
             new_image = image.resize((224, 224))
-            flipped_image = ImageOps.flip(new_image)
+            neg_image = ImageOps.invert(new_image)
             mirrored_image = ImageOps.mirror(new_image)
+            mirrored_neg_image = ImageOps.mirror(neg_image)
             counter += 1
             print(f"\rCreating images in {output_path}: {counter}", end="")
 
-            for i in [new_image, flipped_image, mirrored_image]:
+            for i in [new_image, neg_image, mirrored_image, mirrored_neg_image]:
                 # Save original image
                 i.save(
                     output_path + str(random.random()) + ".jpg", format="jpeg",
                 )
                 for y in range(1):
                     # endre dette for større/mindre random sample size
-                    rotated_image = i.rotate(random.randint(1, 359), expand=True)
+                    rotated_image = i.rotate(random.randint(1, 44), expand=True)
                     # endrer Brightness, tror ikke mørkere en 0.2 som startverdi er lurt
                     brightness_image = ImageEnhance.Brightness(rotated_image).enhance(
                         random.uniform(0.2, 0.9)

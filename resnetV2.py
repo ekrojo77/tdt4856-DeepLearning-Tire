@@ -27,13 +27,27 @@ num_classes = 2
 batch_size = 8
 
 # Number of epochs to train for
-num_epochs = 20
+num_epochs = 2
 
 # Flag for feature extracting. When False, we finetune the whole model,
 #   when True we only update the reshaped layer params
 feature_extract = True
 
+timestamp = int(time.time())
+print(timestamp)
+directory = os.mkdir('Models\\'+str(timestamp))
+
+
+def save_model_to_file(savedmodel, number_of_models):
+    torch.save(savedmodel.state_dict(), os.path.abspath('')+'\Models\\'+str(timestamp)+"\model-"+str(number_of_models)+".pt")
+    print(number_of_models)
+    
+
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_inception=False):
+    
+    #Model number for saving
+    saved_models = 1
+    
     since = time.time()
 
     val_acc_history = []
@@ -95,15 +109,18 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
             epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
 
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
-
+            
             # deep copy the model
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
             if phase == 'val':
                 val_acc_history.append(epoch_acc)
+        save_model_to_file(model, saved_models)
+        saved_models = saved_models + 1
 
         print()
+
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
@@ -297,5 +314,3 @@ def visualize_model(model, num_images=6):
         model_ft.train(mode=was_training)
 
 visualize_model(model_ft)
-
-

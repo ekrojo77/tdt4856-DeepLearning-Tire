@@ -19,6 +19,7 @@ from tqdm import tqdm
 from linedetect import linedetect
 
 IMAGE_FILE = "https://folk.ntnu.no/odinu/images-latest.zip"
+IMAGE_FILE_VALIDATION = "https://folk.ntnu.no/odinu/images-latest-validation.zip"
 
 """
 This script will download the latest set of images into the
@@ -74,6 +75,19 @@ def main():
     # Extract zip
     with zipfile.ZipFile(DOWNLOAD_LOCATION_ZIP, "r") as zip_ref:
         zip_ref.extractall(DOWNLOAD_PATH)
+
+    try:
+        shutil.rmtree("./validation-images/")
+    except Exception:
+        pass
+    os.mkdir("./validation-images/")
+    # Extract zip
+
+    # Download zip with validation images
+    download_url(IMAGE_FILE_VALIDATION, "./validation-images/images.zip")
+
+    with zipfile.ZipFile(f"./validation-images/images.zip", "r") as zip_ref:
+        zip_ref.extractall("./validation-images/")
 
     if canny:
         os.mkdir(DOWNLOAD_PATH + f"Med_Lines/")

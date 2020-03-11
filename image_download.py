@@ -1,5 +1,6 @@
 import urllib.request
 import os
+import sys
 import zipfile
 
 import random
@@ -15,9 +16,9 @@ from PIL import ImageOps
 
 from tqdm import tqdm
 
-IMAGE_FILE = "http://folk.ntnu.no/odinu/images-latest.zip"
-DOWNLOAD_PATH = "./images-tmp/"
-DOWNLOAD_LOCATION_ZIP = "./images-tmp/images.zip"
+from linedetect import linedetect
+
+IMAGE_FILE = "https://folk.ntnu.no/odinu/images-latest.zip"
 
 """
 This script will download the latest set of images into the
@@ -25,9 +26,15 @@ This script will download the latest set of images into the
 script runs.
 
 Images will be downloaded into the folders "images-tmp/Med" and
-"images-tmp/Uten".
+"images-tmp/Uten". Canny images will be added to the canny-images-tmp/
+folder
 
-usage: python image_download.py
+usage:
+    python image_download.py
+
+To use canny edge detection:
+    python image_download.py canny
+
 
 """
 
@@ -46,7 +53,15 @@ def download_url(url, output_path):
         urllib.request.urlretrieve(url, filename=output_path, reporthook=t.update_to)
 
 
-if __name__ == "__main__":
+def main():
+    canny = False
+    if len(sys.argv) > 1 and sys.argv[1] == "canny":
+        canny = True
+        DOWNLOAD_PATH = "./canny-images-tmp/"
+    else:
+        DOWNLOAD_PATH = "./images-tmp/"
+
+    DOWNLOAD_LOCATION_ZIP = f"{DOWNLOAD_PATH}images.zip"
     try:
         shutil.rmtree(DOWNLOAD_PATH)
     except Exception:
@@ -60,9 +75,17 @@ if __name__ == "__main__":
     with zipfile.ZipFile(DOWNLOAD_LOCATION_ZIP, "r") as zip_ref:
         zip_ref.extractall(DOWNLOAD_PATH)
 
+    if canny:
+        os.mkdir(DOWNLOAD_PATH + f"Med_Lines/")
+        linedetect(DOWNLOAD_PATH + "Med/", DOWNLOAD_PATH + "Med_Lines/")
+        os.mkdir(DOWNLOAD_PATH + f"Uten_Lines/")
+        linedetect(DOWNLOAD_PATH + "Uten/", DOWNLOAD_PATH + "Uten_Lines/")
+
     os.mkdir(DOWNLOAD_PATH + f"Training_set/")
     os.mkdir(DOWNLOAD_PATH + f"Validation_set/")
     for Dir in ["Med", "Uten"]:
+        if canny:
+            Dir = f"{Dir}_Lines"
         output_path = DOWNLOAD_PATH + f"Training_set/{Dir}/"
         os.mkdir(output_path)
         counter = 0
@@ -73,8 +96,7 @@ if __name__ == "__main__":
         TestSetPath = DOWNLOAD_PATH + f"Validation_set/{Dir}/"
         os.mkdir(TestSetPath)
 
-        for filename in glob.glob(f"./images-tmp/{Dir}/*.jpg"
-        ):
+        for filename in glob.glob(f"{DOWNLOAD_PATH}{Dir}/*.jpg"):
             image = Image.open(filename)
             new_image = image.resize((224, 224))
             flipped_image = ImageOps.flip(new_image)
@@ -112,3 +134,7 @@ if __name__ == "__main__":
                                 format="jpeg",
                             )
         print()
+
+
+if __name__ == "__main__":
+    main()

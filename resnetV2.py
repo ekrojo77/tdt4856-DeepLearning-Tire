@@ -39,7 +39,8 @@ directory = os.mkdir('Models\\'+str(timestamp))
 
 
 def save_model_to_file(savedmodel, number_of_models):
-    torch.save(savedmodel.state_dict(), os.path.abspath('')+'\Models\\'+str(timestamp)+"\model-"+str(number_of_models)+".pt")
+    torch.save(savedmodel, os.path.abspath('')+'\Models\\'+str(timestamp)+"\model-"+str(number_of_models)+".pt")
+    #torch.save(savedmodel.state_dict(), os.path.abspath('')+'\Models\\'+str(timestamp)+"\model-"+str(number_of_models)+".pt")
     print(number_of_models)
     
 

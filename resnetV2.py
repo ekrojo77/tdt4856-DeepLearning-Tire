@@ -27,7 +27,7 @@ num_classes = 2
 batch_size = 8
 
 # Number of epochs to train for
-num_epochs = 5
+num_epochs = 20
 
 # Flag for feature extracting. When False, we finetune the whole model,
 #   when True we only update the reshaped layer params
@@ -287,6 +287,7 @@ def visualize_model(model, num_images=6):
                 images_so_far += 1
                 ax = plt.subplot(num_images//2, 2, images_so_far)
                 ax.axis('off')
+                print(preds[j])
                 ax.set_title('predicted: {}'.format(class_names[preds[j]]))
                 imshow(inputs.cpu().data[j])
 
@@ -296,3 +297,5 @@ def visualize_model(model, num_images=6):
         model_ft.train(mode=was_training)
 
 visualize_model(model_ft)
+
+

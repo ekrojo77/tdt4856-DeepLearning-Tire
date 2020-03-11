@@ -136,3 +136,5 @@ dmypy.json
 
 # Downloaded images
 images-tmp
+canny-images-tmp
+validation-images

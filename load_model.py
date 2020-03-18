@@ -46,11 +46,6 @@ def load_image(PATH):
     image_datasets = datasets.ImageFolder(root = data_dir, transform=data_transforms['train'])
     return image_datasets
 
-def transform( aImage ):
-    ptLoader = transforms.Compose([transforms.ToTensor()])
-    aImage = ptLoader( aImage ).float()
-    aImage = Variable( aImage, volatile=True  )
-    return aImage.cuda()
 
 data_transforms = {
     'train': transforms.Compose([
@@ -82,10 +77,25 @@ def imshow(inp, title=None):
     plt.pause(0.001)  # pause a bit so that plots are updated
 
 
+totalAttempts = 0
+success = 0
 for inputs, labels in dataloaders_dict['train']:
-    print(model_loaded(inputs))
-    prediction = model_loaded(inputs)
+    
     print(labels)
-    for i in range(0,8):
+    prediction = model_loaded(inputs)
+    resultArray = prediction.detach().numpy()[0]
+    if(resultArray[0]>resultArray[1]):
+        predLabel = 0
+    if(resultArray[1]>resultArray[0]):
+        predLabel = 1
+    print(class_names[predLabel])
+    if(labels.numpy()[0] == predLabel):
+        print("Correct")
+        success += 1
+    for i in range(0,batch_size):
         imshow(inputs[i])
-    break
+        
+    totalAttempts += 1
+
+    
+print("success: ", success/totalAttempts*100,"%")

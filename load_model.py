@@ -24,7 +24,7 @@ print("Torchvision Version: ",torchvision.__version__)
 num_classes = 2
 
 # Batch size for training (change depending on how much memory you have)
-batch_size = 8
+batch_size = 1
 
 data_dir = "wheels"
 
@@ -35,7 +35,7 @@ model_ft.fc = nn.Linear(num_ftrs, num_classes)
 input_size = 224
 
 def load_model(model, PATH):
-    model.load_state_dict(torch.load(os.path.abspath('')+'\Models\\'+PATH))
+    model = load(torch.load(os.path.abspath('')+'\Models\\'+PATH))
     model.eval()
     return model
 
@@ -49,8 +49,7 @@ def load_image(PATH):
 
 data_transforms = {
     'train': transforms.Compose([
-        transforms.CenterCrop(input_size),
-        transforms.RandomHorizontalFlip(),
+        transforms.resize(input_size),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
@@ -81,7 +80,6 @@ totalAttempts = 0
 success = 0
 for inputs, labels in dataloaders_dict['train']:
     
-    print(labels)
     prediction = model_loaded(inputs)
     resultArray = prediction.detach().numpy()[0]
     if(resultArray[0]>resultArray[1]):

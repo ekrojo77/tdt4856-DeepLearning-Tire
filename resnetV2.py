@@ -33,6 +33,9 @@ num_epochs = 2
 #   when True we only update the reshaped layer params
 feature_extract = True
 
+#Set to True for saving, false does not save model
+save = True
+
 timestamp = int(time.time())
 print(timestamp)
 directory = os.mkdir('Models\\'+str(timestamp))
@@ -117,8 +120,9 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
                 best_model_wts = copy.deepcopy(model.state_dict())
             if phase == 'val':
                 val_acc_history.append(epoch_acc)
-        save_model_to_file(model, saved_models)
-        saved_models = saved_models + 1
+        if save:
+            save_model_to_file(model, saved_models)
+            saved_models = saved_models + 1
 
         print()
 

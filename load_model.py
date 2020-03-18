@@ -26,7 +26,9 @@ num_classes = 2
 # Batch size for training (change depending on how much memory you have)
 batch_size = 1
 
-data_dir = "wheels"
+data_dir = "validation-images"
+
+local_model = "1584524997\model-17.pt"
 
 model_ft = models.resnet18()
 #set_parameter_requires_grad(model_ft, feature_extract)
@@ -35,21 +37,28 @@ model_ft.fc = nn.Linear(num_ftrs, num_classes)
 input_size = 224
 
 def load_model(model, PATH):
-    model = load(torch.load(os.path.abspath('')+'\Models\\'+PATH))
+    model.load_state_dict(torch.load(os.path.abspath('')+'\Models\\'+PATH))
     model.eval()
     return model
 
-model_loaded = load_model(model_ft,'1583917163\model-1.pt' )
+
+# HERE YOU SET YOUR LOCAL MODEL
+model_loaded = load_model(model_ft, local_model )
 
 def load_image(PATH):
     #InputImg = skimage.img_as_float(skimage.io.imread(PATH))
     image_datasets = datasets.ImageFolder(root = data_dir, transform=data_transforms['train'])
     return image_datasets
-
-
+'''
+def transform( aImage ):
+    ptLoader = transforms.Compose([transforms.ToTensor()])
+    aImage = ptLoader( aImage ).float()
+    aImage = Variable( aImage, volatile=True  )
+    return aImage.cuda()
+'''
 data_transforms = {
     'train': transforms.Compose([
-        transforms.resize(input_size),
+        transforms.Resize(input_size),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
@@ -75,25 +84,31 @@ def imshow(inp, title=None):
         plt.title(title)
     plt.pause(0.001)  # pause a bit so that plots are updated
 
-
 totalAttempts = 0
 success = 0
 for inputs, labels in dataloaders_dict['train']:
     
+    print("_____________________________________________")
+    print("\n")
     prediction = model_loaded(inputs)
     resultArray = prediction.detach().numpy()[0]
     if(resultArray[0]>resultArray[1]):
         predLabel = 0
     if(resultArray[1]>resultArray[0]):
         predLabel = 1
-    print(class_names[predLabel])
+    print("Predicting the label: ",class_names[predLabel])
     if(labels.numpy()[0] == predLabel):
-        print("Correct")
+        print("Correct prediction in regards to label set at data creation")
         success += 1
     for i in range(0,batch_size):
         imshow(inputs[i])
         
     totalAttempts += 1
-
     
-print("success: ", success/totalAttempts*100,"%")
+    
+print("_____________________________________________")
+print("\n")
+print("Number of images: ", totalAttempts)
+print("Number of correct predictions: ", success)
+print("success: ", success/totalShit*100,"%")
+print("_____________________________________________")
